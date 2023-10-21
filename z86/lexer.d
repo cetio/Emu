@@ -1,1 +1,1 @@
-module z86.lexer;
+module lexer;
