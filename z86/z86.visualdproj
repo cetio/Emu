@@ -501,10 +501,8 @@
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep;*.tlog</filesToClean>
  </Config>
  <Folder name="z86">
-  <File path="instructions.d" />
-  <File path="register.d" />
-  <File path="assembler.d" />
-  <File path="lexer.d" />
+  <File path="asm80.d" />
+  <File path="asm86.d" />
   <File path="z86.d" />
  </Folder>
 </DProject>
