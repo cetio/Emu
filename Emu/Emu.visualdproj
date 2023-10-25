@@ -315,7 +315,7 @@
   <preview_in>0</preview_in>
   <preview_inclincontracts>0</preview_inclincontracts>
   <transition_vmarkdown>0</transition_vmarkdown>
-  <compiler>2</compiler>
+  <compiler>0</compiler>
   <otherDMD>0</otherDMD>
   <cccmd>$(CC) -c</cccmd>
   <ccTransOpt>1</ccTransOpt>
@@ -500,9 +500,10 @@
   <postBuildCommand />
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep;*.tlog</filesToClean>
  </Config>
- <Folder name="z86">
-  <File path="asm80.d" />
-  <File path="asm86.d" />
-  <File path="z86.d" />
+ <Folder name="Emu">
+  <File path="map.d" />
+  <File path="utils.d" />
+  <File path="emu.d" />
+  <File path="main.d" />
  </Folder>
 </DProject>
