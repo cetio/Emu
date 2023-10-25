@@ -4,6 +4,7 @@ import utils;
 import std.range;
 import std.stdio;
 import std.conv;
+import std.algorithm;
 
 private const ubyte[string] mainMap;
 // Used for fast lookups to determine if an opcode starts with CB
@@ -465,7 +466,6 @@ public template z80()
     public ubyte[] assemble(string tdata)
     {
         import std.string;
-        import std.algorithm;
 
         // So that we can take in data like:
         //    add a, $10
@@ -556,8 +556,6 @@ public template z80()
 
     public string disassemble(ubyte[] bytes)
     {
-        import std.algorithm;
-
         string data;
         for (int i = 0; i < bytes.length;)
         {

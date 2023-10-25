@@ -72,10 +72,10 @@ public static class assemblers
         import std.string;
 
         // in8b == inbuilt 8-bit
-        const auto in8b = ctRegex!(r"\w+ \d,", "gm");
+        const auto in8b = ctRegex!(r"\w+ (?:\d,|\dh,)", "gm");
         // This is so things like set 4, b don't get matched
         // If we don't have this set 4, b gets converted to set n, b
-        if (match(_line, in8b))
+        if (match(_line, in8b) || _line.startsWith("rst"))
             return m.hit;
         string hit = m.hit;
 
