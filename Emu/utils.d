@@ -75,8 +75,11 @@ public static class assemblers
         const auto in8b = ctRegex!(r"\w+ (?:\d,|\dh,)", "gm");
         // This is so things like set 4, b don't get matched
         // If we don't have this set 4, b gets converted to set n, b
-        if (match(_line, in8b) || _line.startsWith("rst"))
+        if (_line != null && (match(_line, in8b) || _line.startsWith("rst")))
+        {
+            _line = null;
             return m.hit;
+        }
         string hit = m.hit;
 
         static if (is(T == char))
@@ -143,9 +146,9 @@ public static class assemblers
         return closestMatch;
     }
 
-    public static ulong getLengthOfMnemonic(string mnemonic)
+    public static int getLengthOfMnemonic(string mnemonic)
     {
         mnemonic = mnemonic.replace("nn", "1000").replace('n', "100");
-        return z80!().assemble(mnemonic).length;
+        return cast(int)z80!().assemble(mnemonic).length;
     }
 }

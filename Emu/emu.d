@@ -561,6 +561,7 @@ public template z80()
         {
             ubyte b = bytes[i];
             string mnemonic;
+            int size;
 
             if (i != 0)
                 data ~= "\n";
@@ -569,37 +570,51 @@ public template z80()
             {
                 case 0xcb:
                     mnemonic = cbMap.keys.filter!(key => cbMap[key] == bytes[i + 1]).front;
+                    size = assemblers.getLengthOfMnemonic(mnemonic);
+                    mnemonic ~= " " ~ bytes[(i + 2)..(i + size)].to!string;
                     break;
                 case 0xdd:
                     if (bytes[i + 1] == 0xcb)
                     {
-                        mnemonic = ddMap.keys.filter!(key => ddMap[key] == bytes[i + 2]).front;
+                        mnemonic = ddcbMap.keys.filter!(key => ddcbMap[key] == bytes[i + 3]).front;
+                        size = assemblers.getLengthOfMnemonic(mnemonic);
+                        mnemonic ~= " " ~ bytes[(i + 2)..(i + size - 1)].to!string;
                     }
                     else
                     {
                         mnemonic = ddMap.keys.filter!(key => ddMap[key] == bytes[i + 1]).front;
+                        size = assemblers.getLengthOfMnemonic(mnemonic);
+                        mnemonic ~= " " ~ bytes[(i + 2)..(i + size)].to!string;
                     }
                     break;
                 case 0xed:
                     mnemonic = edMap.keys.filter!(key => edMap[key] == bytes[i + 1]).front;
+                    size = assemblers.getLengthOfMnemonic(mnemonic);
+                    mnemonic ~= " " ~ bytes[(i + 2)..(i + size)].to!string;
                     break;
                 case 0xfd:
                     if (bytes[i + 1] == 0xcb)
                     {
-                        mnemonic = fdcbMap.keys.filter!(key => fdcbMap[key] == bytes[i + 2]).front;
+                        mnemonic = fdcbMap.keys.filter!(key => fdcbMap[key] == bytes[i + 3]).front;
+                        size = assemblers.getLengthOfMnemonic(mnemonic);
+                        mnemonic ~= " " ~ bytes[(i + 2)..(i + size - 1)].to!string;
                     }
                     else
                     {
                         mnemonic = fdMap.keys.filter!(key => fdMap[key] == bytes[i + 1]).front;
+                        size = assemblers.getLengthOfMnemonic(mnemonic);
+                        mnemonic ~= " " ~ bytes[(i + 2)..(i + size)].to!string;
                     }
                     break;
                 default:
                     mnemonic = mainMap.keys.filter!(key => mainMap[key] == b).front;
+                    size = assemblers.getLengthOfMnemonic(mnemonic);
+                    mnemonic ~= " " ~ bytes[(i + 1)..(i + size)].to!string;
                     break;
             }
 
             data ~= mnemonic;
-            i += assemblers.getLengthOfMnemonic(mnemonic);
+            i += size;
         }
         
         return data;
