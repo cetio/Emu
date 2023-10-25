@@ -9,12 +9,13 @@ import std.conv;
 
 public static class assemblers
 {
-    // This field is only here so we can temporarily use it when parsing
+    // These fields are only here so we can temporarily use it when parsing
     private static ubyte[] _literals;
+    private static string _line;
 
     //return hasMember!(Registers, value);
     
-    public static string[] parseLiterals(string data, out ubyte[][] literals)
+    public static string[] parseLiterals(string[] data, out ubyte[][] literals)
     {
         const auto hex8 = ctRegex!(r"(?:\$[\da-fA-F]{1,2}\b)|(?:\b[\da-fA-F]{1,2}h)", "gm");
         const auto hex16 = ctRegex!(r"(?:\$[\da-fA-F]{3,7}\b)|(?:\b[\da-fA-F]{3,7}h)", "gm");
@@ -30,10 +31,12 @@ public static class assemblers
         const auto bin32p = ctRegex!(r"(?:%[0-1]{17,}\b)|(?:\b[0-1]{17,}b)", "gm");
         const auto achar = ctRegex!(r"'.'", "gm");
         const auto astr = ctRegex!("\".*\"", "gm");
-        string[] tokens = data.split("\n");
+        string[] tdata = data.dup;
 
-        foreach (ref string line; tokens)
+        foreach (ref string line; tdata)
         {
+            _line = line;
+
             // n == 8-bit literal
             // Chars are 8-bit
             line = replaceAll!(literalOp!(ubyte, 16, "n"))(line, hex8);
@@ -61,15 +64,21 @@ public static class assemblers
             _literals = null;
         }
 
-        return tokens;
+        return tdata;
     }
     
     private static string literalOp(T, int BASE, string TOKEN)(Captures!string m)
     {
         import std.string;
 
+        // in8b == inbuilt 8-bit
+        const auto in8b = ctRegex!(r"\w+ \d,", "gm");
+        // This is so things like set 4, b don't get matched
+        // If we don't have this set 4, b gets converted to set n, b
+        if (match(_line, in8b))
+            return m.hit;
         string hit = m.hit;
-        
+
         static if (is(T == char))
         {
             _literals ~= hit[1].to!ubyte;
@@ -111,20 +120,23 @@ public static class assemblers
         return TOKEN;
     } 
 
-    public static string findClosestMatch(string input, string[] candidates)
+    public static string findClosestMatch(string input, string[][] candidates...) 
     {
-        import std.algorithm.comparison;
+        import std.algorithm;
 
         long minDistance = int.max;
         string closestMatch;
 
         foreach (candidate; candidates) 
         {
-            long distance = input.levenshteinDistance(candidate);
-            if (distance < minDistance) 
+            foreach (map; candidate) 
             {
-                minDistance = distance;
-                closestMatch = candidate;
+                long distance = input.levenshteinDistance(map);
+                if (distance < minDistance) 
+                {
+                    minDistance = distance;
+                    closestMatch = map;
+                }
             }
         }
 

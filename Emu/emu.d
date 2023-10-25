@@ -2,7 +2,7 @@ module emu;
 
 import utils;
 import std.range;
-import std.stdio : writeln;
+import std.stdio;
 import std.conv;
 
 private const ubyte[string] mainMap;
@@ -462,7 +462,7 @@ static this()
 
 public template z80()
 {
-    public ubyte[] assemble(string data)
+    public ubyte[] assemble(string tdata)
     {
         import std.string;
         import std.algorithm;
@@ -471,18 +471,20 @@ public template z80()
         //    add a, $10
         //    ld c, a
         // Otherwise that would throw an error :|
-        data = data
+        string[] data = tdata
             .splitLines()
             .map!(line => line.stripLeft)
-            .join("\n");
+            .array;
 
         ubyte[][] literals;
-        string[] tokens = assemblers.parseLiterals(, literals);
+        string[] tokens = assemblers.parseLiterals(data, literals);
         ubyte[] bytes;
 
         foreach (i; 0..tokens.length)
         {
             string line = tokens[i];
+            if (line.length == 0)
+                continue;
 
             // This is ugly
             if (line in mainMap)
@@ -528,8 +530,24 @@ public template z80()
             }
             else
             {
-                writeln("Unknown operation '"~line~"'. Did you mean '"~assemblers.findClosestMatch(line, mainMap.keys)~"'?");
-                throw new Exception("Unknown operation '"~line~"'. Did you mean '"~assemblers.findClosestMatch(line, mainMap.keys)~"'?");
+                // We don't reference 'line' here because we want the raw data.
+                writeln("Unknown operation '"~data[i]~"'. Did you mean '"~assemblers.findClosestMatch(line, 
+                                                                                                   mainMap.keys, 
+                                                                                                   cbMap.keys, 
+                                                                                                   ddMap.keys, 
+                                                                                                   ddcbMap.keys, 
+                                                                                                   edMap.keys, 
+                                                                                                   fdMap.keys, 
+                                                                                                   fdcbMap.keys)~"'?");
+                readln();
+                throw new Exception("Unknown operation '"~data[i]~"'. Did you mean '"~assemblers.findClosestMatch(line, 
+                                                                                                               mainMap.keys, 
+                                                                                                               cbMap.keys, 
+                                                                                                               ddMap.keys, 
+                                                                                                               ddcbMap.keys, 
+                                                                                                               edMap.keys, 
+                                                                                                               fdMap.keys, 
+                                                                                                               fdcbMap.keys)~"'?");
             }
         }
 
