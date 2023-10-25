@@ -464,8 +464,20 @@ public template z80()
 {
     public ubyte[] assemble(string data)
     {
+        import std.string;
+        import std.algorithm;
+
+        // So that we can take in data like:
+        //    add a, $10
+        //    ld c, a
+        // Otherwise that would throw an error :|
+        data = data
+            .splitLines()
+            .map!(line => line.stripLeft)
+            .join("\n");
+
         ubyte[][] literals;
-        string[] tokens = assemblers.parseLiterals(data, literals);
+        string[] tokens = assemblers.parseLiterals(, literals);
         ubyte[] bytes;
 
         foreach (i; 0..tokens.length)

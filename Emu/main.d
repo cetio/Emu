@@ -9,7 +9,7 @@ int main()
 {
     writeln(z80!().assemble(
     "add a, $10
-ld c, a"));
+    ld c, a"));
     writeln(z80!().disassemble(z80!().assemble(
     "add a, $10
 ld c, a")));
