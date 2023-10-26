@@ -469,7 +469,7 @@ static this()
         "ld b, imm8": "mov EBX, imm32",
         "rlca": "rol EAX, 1",
         "ex af, af'": "// unimplemented opcode 'ex af, af''",
-        "add hl, bc": ""
+        "add hl, bc": "// unimplemented opcode 'add hl, bc'",
     ];
 }
 
@@ -491,7 +491,7 @@ public template z80()
             .array;
 
         ubyte[][] literals;
-        string[] tokens = assemblers.parseLiterals(data, literals);
+        string[] tokens = parseLiterals(data, literals);
         ubyte[] bytes;
 
         foreach (i; 0..tokens.length)
@@ -545,7 +545,7 @@ public template z80()
             else
             {
                 // We don't reference 'line' here because we want the raw data.
-                writeln("Unknown operation '"~data[i]~"'. Did you mean '"~assemblers.findClosestMatch(line, 
+                writeln("Unknown operation '"~data[i]~"'. Did you mean '"~findClosestMatch(line, 
                                                                                                    mainMap.keys, 
                                                                                                    cbMap.keys, 
                                                                                                    ddMap.keys, 
@@ -554,7 +554,7 @@ public template z80()
                                                                                                    fdMap.keys, 
                                                                                                    fdcbMap.keys)~"'?");
                 readln();
-                throw new Exception("Unknown operation '"~data[i]~"'. Did you mean '"~assemblers.findClosestMatch(line, 
+                throw new Exception("Unknown operation '"~data[i]~"'. Did you mean '"~findClosestMatch(line, 
                                                                                                                mainMap.keys, 
                                                                                                                cbMap.keys, 
                                                                                                                ddMap.keys, 
@@ -584,45 +584,45 @@ public template z80()
             {
                 case 0xcb:
                     mnemonic = cbMap.keys.filter!(key => cbMap[key] == bytes[i + 1]).front;
-                    size = assemblers.getLengthOfMnemonic(mnemonic);
+                    size = getLengthOfMnemonic(mnemonic);
                     mnemonic ~= " " ~ bytes[(i + 2)..(i + size)].to!string;
                     break;
                 case 0xdd:
                     if (bytes[i + 1] == 0xcb)
                     {
                         mnemonic = ddcbMap.keys.filter!(key => ddcbMap[key] == bytes[i + 3]).front;
-                        size = assemblers.getLengthOfMnemonic(mnemonic);
+                        size = getLengthOfMnemonic(mnemonic);
                         mnemonic ~= " " ~ bytes[(i + 2)..(i + size - 1)].to!string;
                     }
                     else
                     {
                         mnemonic = ddMap.keys.filter!(key => ddMap[key] == bytes[i + 1]).front;
-                        size = assemblers.getLengthOfMnemonic(mnemonic);
+                        size = getLengthOfMnemonic(mnemonic);
                         mnemonic ~= " " ~ bytes[(i + 2)..(i + size)].to!string;
                     }
                     break;
                 case 0xed:
                     mnemonic = edMap.keys.filter!(key => edMap[key] == bytes[i + 1]).front;
-                    size = assemblers.getLengthOfMnemonic(mnemonic);
+                    size = getLengthOfMnemonic(mnemonic);
                     mnemonic ~= " " ~ bytes[(i + 2)..(i + size)].to!string;
                     break;
                 case 0xfd:
                     if (bytes[i + 1] == 0xcb)
                     {
                         mnemonic = fdcbMap.keys.filter!(key => fdcbMap[key] == bytes[i + 3]).front;
-                        size = assemblers.getLengthOfMnemonic(mnemonic);
+                        size = getLengthOfMnemonic(mnemonic);
                         mnemonic ~= " " ~ bytes[(i + 2)..(i + size - 1)].to!string;
                     }
                     else
                     {
                         mnemonic = fdMap.keys.filter!(key => fdMap[key] == bytes[i + 1]).front;
-                        size = assemblers.getLengthOfMnemonic(mnemonic);
+                        size = getLengthOfMnemonic(mnemonic);
                         mnemonic ~= " " ~ bytes[(i + 2)..(i + size)].to!string;
                     }
                     break;
                 default:
                     mnemonic = mainMap.keys.filter!(key => mainMap[key] == b).front;
-                    size = assemblers.getLengthOfMnemonic(mnemonic);
+                    size = getLengthOfMnemonic(mnemonic);
                     mnemonic ~= " " ~ bytes[(i + 1)..(i + size)].to!string;
                     break;
             }
@@ -648,7 +648,7 @@ public template z80()
             .array;
 
         ubyte[][] literals;
-        string[] tokens = assemblers.parseLiterals(data, literals);
+        string[] tokens = parseLiterals(data, literals);
         ubyte[] bytes;
 
         foreach (i; 0..tokens.length)
