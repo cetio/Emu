@@ -19,6 +19,8 @@ private const ubyte[string] ddcbMap;
 private const ubyte[string] edMap;
 private const ubyte[string] fdMap;
 private const ubyte[string] fdcbMap;
+// For mapping Z80 to x86
+private const string[string] convMap;
 
 static this()
 {
@@ -457,6 +459,18 @@ static this()
         "set 7, (iy + n), h": 0xFC, "set 7, (iy + n), l": 0xFD, "set 7, (iy + n)": 0xFE, 
         "set 7, (iy + n), a": 0xFF
     ];
+    convMap = [
+        "nop": "nop",
+        "ld bc, imm16": "mov RBX, imm64",
+        "ld (bc), imm16": "mov [RBX], imm64",
+        "inc bc": "inc RBX",
+        "inc b": "inc EBX",
+        "dec b": "dec EBX",
+        "ld b, imm8": "mov EBX, imm32",
+        "rlca": "rol EAX, 1",
+        "ex af, af'": "// unimplemented opcode 'ex af, af''",
+        "add hl, bc": ""
+    ];
 }
 
 // This is used for converting a token list of Z80 to bytes or x86
@@ -618,6 +632,33 @@ public template z80()
         }
         
         return data;
+    }
+
+    public string map(string tdata)
+    {
+        import std.string;
+
+        // So that we can take in data like:
+        //    add a, $10
+        //    ld c, a
+        // Otherwise that would throw an error :|
+        string[] data = tdata
+            .splitLines()
+            .map!(line => line.stripLeft)
+            .array;
+
+        ubyte[][] literals;
+        string[] tokens = assemblers.parseLiterals(data, literals);
+        ubyte[] bytes;
+
+        foreach (i; 0..tokens.length)
+        {
+            string line = tokens[i];
+            if (line.length == 0)
+                continue;
+
+            
+        }
     }
 }
 
